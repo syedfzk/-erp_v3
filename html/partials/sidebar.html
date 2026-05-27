@@ -1,0 +1,111 @@
+{% load static %}
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-inner slimscroll">
+        <div class="sidebar-menu" id="sidebar-menu">
+            <ul>
+                <li>
+                    <a class="d-flex align-items-center border bg-white rounded p-2 mb-4" href="javascript:void(0);">
+                        <img alt="Profile" class="avatar avatar-md img-fluid rounded"
+                            src="{% static 'assets/images/global-img_8d2704b5.svg' %}" />
+                        <span class="text-dark ms-2 fw-normal">{{ student.name }}</span>
+                    </a>
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    <h6 class="submenu-hdr"><span>Main</span></h6>
+                    <ul>
+                        <li>
+                            <a href="/student/dashboard/">
+                                <i class="ti ti-layout-dashboard"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <h6 class="submenu-hdr"><span>Academic</span></h6>
+                    <ul>
+                        <li>
+                            <a href="/student/attendance/">
+                                <i class="ti ti-calendar-share"></i>
+                                <span>Attendance</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/student/timetable/">
+                                <i class="ti ti-table"></i>
+                                <span>Time Table</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/student/results/">
+                                <i class="ti ti-chart-infographic"></i>
+                                <span>Exam Results</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/student/homework/">
+                                <i class="ti ti-license"></i>
+                                <span>Home Work</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/student/syllabus/">
+                                <i class="ti ti-book-upload"></i>
+                                <span>Syllabus</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <h6 class="submenu-hdr"><span>Finance</span></h6>
+                    <ul>
+                        <li>
+                            <a href="/student/fees/">
+                                <i class="ti ti-report-money"></i>
+                                <span>My Fees</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <h6 class="submenu-hdr"><span>Communication</span></h6>
+                    <ul>
+                        <li>
+                            <a href="/student/notices/">
+                                <i class="ti ti-clipboard-data"></i>
+                                <span>Notice Board</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/student/events/">
+                                <i class="ti ti-calendar-question"></i>
+                                <span>Events</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <h6 class="submenu-hdr"><span>Account</span></h6>
+                    <ul>
+                        <li>
+                            <a href="/student/profile/">
+                                <i class="ti ti-user-circle"></i>
+                                <span>My Profile</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/logout/">
+                                <i class="ti ti-login"></i>
+                                <span>Logout</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- /Sidebar -->
