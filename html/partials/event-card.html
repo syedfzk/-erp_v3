@@ -1,0 +1,67 @@
+<div class="card shadow-sm mb-3 border-left-{{ highlight }}">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start">
+      <div class="flex-grow-1">
+
+        <!-- Title + badges -->
+        <h6 class="mb-1 fw-bold">
+          {{ event.title }}
+          {% if event.when_label == 'today' %}
+            <span class="badge badge-soft-danger ms-1">Today</span>
+          {% elif event.when_label == 'tomorrow' %}
+            <span class="badge badge-soft-warning ms-1">Tomorrow</span>
+          {% elif event.when_label == 'this_week' %}
+            <span class="badge badge-soft-info ms-1">This Week</span>
+          {% endif %}
+          {% if event.target == 'class' %}
+            <span class="badge badge-soft-primary ms-1">Class {{ event.target_class }}</span>
+          {% endif %}
+        </h6>
+
+        <!-- Meta row -->
+        <p class="text-muted small mb-1">
+          <i class="mdi mdi-calendar me-1"></i>
+          {{ event.event_date }}
+          {% if event.end_date and event.end_date != event.event_date %}
+            → {{ event.end_date }}
+          {% endif %}
+
+          {% if event.start_time %}
+            &nbsp;·&nbsp;<i class="mdi mdi-clock-outline me-1"></i>
+            {{ event.start_time }}
+            {% if event.end_time %} – {{ event.end_time }}{% endif %}
+          {% endif %}
+
+          {% if event.venue %}
+            &nbsp;·&nbsp;<i class="mdi mdi-map-marker me-1"></i>{{ event.venue }}
+          {% endif %}
+        </p>
+
+        {% if event.description %}
+        <p class="mb-0 small text-secondary">{{ event.description|truncatechars:150 }}</p>
+        {% endif %}
+
+      </div>
+
+      <!-- Right: category badge + days until -->
+      <div class="ms-3 text-end">
+        <span class="badge badge-soft-
+          {% if event.category == 'exam' %}danger
+          {% elif event.category == 'sports' %}success
+          {% elif event.category == 'cultural' %}warning
+          {% elif event.category == 'academic' %}primary
+          {% elif event.category == 'holiday' %}info
+          {% else %}secondary{% endif %}
+          text-capitalize">
+          {{ event.category }}
+        </span>
+        <p class="text-muted small mt-1 mb-0">
+          {% if event.days_until == 0 %}Today
+          {% elif event.days_until == 1 %}Tomorrow
+          {% else %}in {{ event.days_until }} days{% endif %}
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>

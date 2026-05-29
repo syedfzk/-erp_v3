@@ -1,0 +1,253 @@
+{% extends 'student-base.html' %}
+{% block title %}My Fees{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between mb-3">
+    <div class="my-auto mb-2">
+        <h3 class="page-title mb-1">My Fees</h3>
+        <nav>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/student/dashboard/">Dashboard</a></li>
+                <li class="breadcrumb-item active">My Fees</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex align-items-center flex-wrap gap-2">
+        <form method="get" class="d-flex align-items-center gap-2 mb-0">
+            <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
+                {% for year in available_years %}
+                <option value="{{ year }}" {% if year == academic_year %}selected{% endif %}>
+                    {{ year }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+</div>
+
+{# ── Summary Cards ── #}
+{% if summary %}
+<div class="row g-3 mb-4">
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Total Fees</p>
+                        <h4 class="mb-0 fw-bold">₹{{ summary.total_fees|floatformat:0 }}</h4>
+                    </div>
+                    <div class="avatar avatar-md bg-primary-transparent rounded-circle">
+                        <i class="ti ti-currency-rupee fs-4 text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Paid Amount</p>
+                        <h4 class="mb-0 fw-bold text-success">₹{{ summary.total_paid|floatformat:0 }}</h4>
+                    </div>
+                    <div class="avatar avatar-md bg-success-transparent rounded-circle">
+                        <i class="ti ti-circle-check fs-4 text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Pending Amount</p>
+                        <h4 class="mb-0 fw-bold {% if summary.total_pending > 0 %}text-danger{% else %}text-success{% endif %}">
+                            ₹{{ summary.total_pending|floatformat:0 }}
+                        </h4>
+                    </div>
+                    <div class="avatar avatar-md bg-danger-transparent rounded-circle">
+                        <i class="ti ti-alert-circle fs-4 text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1 small">Next Due Date</p>
+                        <h4 class="mb-0 fw-bold">
+                            {% if summary.next_due_date %}
+                                {{ summary.next_due_date|date:"d M Y" }}
+                            {% else %}
+                                <span class="text-success fs-6">All Clear</span>
+                            {% endif %}
+                        </h4>
+                    </div>
+                    <div class="avatar avatar-md bg-warning-transparent rounded-circle">
+                        <i class="ti ti-calendar-due fs-4 text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endif %}
+
+{# ── Fee Details Table ── #}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="ti ti-receipt me-2 text-primary"></i>Fee Details — {{ academic_year }}
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        {% if fee_rows %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Term / Month</th>
+                        <th>Fee Type</th>
+                        <th class="text-end">Amount</th>
+                        <th class="text-end">Discount</th>
+                        <th class="text-end">Fine</th>
+                        <th class="text-end">Net Amount</th>
+                        <th class="text-center">Due Date</th>
+                        <th class="text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fee in fee_rows %}
+                    <tr {% if fee.status == 'Overdue' %}class="table-danger"{% endif %}>
+                        <td class="fw-semibold">{{ fee.term }}</td>
+                        <td>{{ fee.fee_type }}</td>
+                        <td class="text-end">₹{{ fee.amount|floatformat:0 }}</td>
+                        <td class="text-end">
+                            {% if fee.discount > 0 %}
+                                <span class="text-success">-₹{{ fee.discount|floatformat:0 }}</span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if fee.fine > 0 %}
+                                <span class="text-danger">+₹{{ fee.fine|floatformat:0 }}</span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td class="text-end fw-bold">₹{{ fee.net_amount|floatformat:0 }}</td>
+                        <td class="text-center">
+                            <span class="{% if fee.status == 'Overdue' %}text-danger fw-semibold{% endif %}">
+                                {{ fee.due_date|date:"d M Y" }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            {% if fee.status == 'Paid' %}
+                            <span class="badge badge-soft-success d-inline-flex align-items-center">
+                                <i class="ti ti-circle-check me-1"></i>Paid
+                            </span>
+                            {% elif fee.status == 'Overdue' %}
+                            <span class="badge badge-soft-danger d-inline-flex align-items-center">
+                                <i class="ti ti-alert-circle me-1"></i>Overdue
+                            </span>
+                            {% else %}
+                            <span class="badge badge-soft-warning d-inline-flex align-items-center">
+                                <i class="ti ti-clock me-1"></i>Pending
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="table-light">
+                    <tr>
+                        <td colspan="5" class="fw-bold">Total Pending</td>
+                        <td class="fw-bold text-danger">
+                            ₹{{ summary.total_pending|floatformat:0 }}
+                        </td>
+                        <td colspan="2" class="text-end">
+                            {% if summary.total_pending > 0 %}
+                            <button class="btn btn-primary btn-sm disabled" title="Coming soon">
+                                <i class="ti ti-credit-card me-1"></i>
+                                Pay Now — ₹{{ summary.total_pending|floatformat:0 }}
+                            </button>
+                            {% else %}
+                            <span class="badge badge-soft-success">
+                                <i class="ti ti-circle-check me-1"></i>All Paid
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="ti ti-file-off fs-1 text-muted"></i>
+            <p class="text-muted mt-2 mb-0">No fee records for {{ academic_year }}.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{# ── Payment History ── #}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="ti ti-history me-2 text-primary"></i>Payment History
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        {% if payments %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Receipt No.</th>
+                        <th>Fee Type</th>
+                        <th>Term</th>
+                        <th class="text-end">Amount Paid</th>
+                        <th class="text-center">Payment Date</th>
+                        <th class="text-center">Method</th>
+                        <th class="text-center">Receipt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in payments %}
+                    <tr>
+                        <td class="fw-semibold text-primary">{{ p.receipt_number }}</td>
+                        <td>{{ p.fee_type }}</td>
+                        <td>{{ p.term }}</td>
+                        <td class="text-end fw-bold text-success">₹{{ p.amount_paid|floatformat:0 }}</td>
+                        <td class="text-center">{{ p.payment_date|date:"d M Y" }}</td>
+                        <td class="text-center">
+                            <span class="badge badge-soft-info">{{ p.payment_method }}</span>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-secondary disabled" title="Coming soon">
+                                <i class="ti ti-download me-1"></i>PDF
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="ti ti-receipt-off fs-1 text-muted"></i>
+            <p class="text-muted mt-2 mb-0">No payments recorded yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

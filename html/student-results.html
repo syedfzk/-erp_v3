@@ -1,0 +1,86 @@
+{% extends 'student-base.html' %}
+{% block title %}My Exam Results{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between mb-3">
+    <div class="my-auto mb-2">
+        <h3 class="page-title mb-1">My Exam Results</h3>
+        <nav>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/student/dashboard/">Dashboard</a></li>
+                <li class="breadcrumb-item active">Exam Results</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+{% if exams %}
+    {% for exam_name, subjects in exams.items %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4 class="card-title">{{ exam_name }}</h4>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Subject</th>
+                            <th>Max Marks</th>
+                            <th>Obtained</th>
+                            <th>Percentage</th>
+                            <th>Grade</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in subjects %}
+                        <tr>
+                            <td>{{ r.subject_name }}</td>
+                            <td>{{ r.max_marks }}</td>
+                            <td>{{ r.obtained_marks }}</td>
+                            <td>{{ r.percentage }}%</td>
+                            <td><span class="badge badge-soft-primary">{{ r.grade }}</span></td>
+                            <td>
+                                {% if r.result == 'Pass' %}
+                                <span class="badge badge-soft-success d-inline-flex align-items-center">
+                                    <i class="ti ti-circle-filled fs-5 me-1"></i>Pass
+                                </span>
+                                {% else %}
+                                <span class="badge badge-soft-danger d-inline-flex align-items-center">
+                                    <i class="ti ti-circle-filled fs-5 me-1"></i>Fail
+                                </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="5" class="fw-bold">Overall</td>
+                            <td>
+                                {% for r in subjects %}
+                                    {% if r.result == 'Fail' %}
+                                    <span class="badge badge-soft-danger">Fail</span>
+                                    {% endif %}
+                                {% empty %}
+                                <span class="badge badge-soft-success">Pass</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="ti ti-file-off fs-1 text-muted"></i>
+            <p class="text-muted mt-2">No exam results available yet</p>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}

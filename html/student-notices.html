@@ -1,0 +1,230 @@
+{% extends 'student-base.html' %}
+{% block title %}Notice Board{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="page-header">
+    <h3 class="page-title">Notice Board</h3>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Notices</li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-center border-0 shadow-sm">
+        <div class="card-body">
+          <h4 class="text-danger fw-bold">{{ priority_counts.urgent }}</h4>
+          <p class="mb-0 text-muted small">Urgent</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center border-0 shadow-sm">
+        <div class="card-body">
+          <h4 class="text-warning fw-bold">{{ priority_counts.high }}</h4>
+          <p class="mb-0 text-muted small">High Priority</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center border-0 shadow-sm">
+        <div class="card-body">
+          <h4 class="text-primary fw-bold">{{ priority_counts.normal }}</h4>
+          <p class="mb-0 text-muted small">Normal</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center border-0 shadow-sm">
+        <div class="card-body">
+          <h4 class="text-success fw-bold">{{ total_count }}</h4>
+          <p class="mb-0 text-muted small">Total Active</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body py-2">
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'student_notices' %}"
+           class="btn btn-sm {% if not priority_filter %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+          All ({{ total_count }})
+        </a>
+        <a href="?priority=urgent"
+           class="btn btn-sm {% if priority_filter == 'urgent' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+          🔴 Urgent ({{ priority_counts.urgent }})
+        </a>
+        <a href="?priority=high"
+           class="btn btn-sm {% if priority_filter == 'high' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+          🟠 High ({{ priority_counts.high }})
+        </a>
+        <a href="?priority=normal"
+           class="btn btn-sm {% if priority_filter == 'normal' %}btn-info{% else %}btn-outline-info{% endif %}">
+          🔵 Normal ({{ priority_counts.normal }})
+        </a>
+        <a href="?priority=low"
+           class="btn btn-sm {% if priority_filter == 'low' %}btn-success{% else %}btn-outline-success{% endif %}">
+          🟢 Low ({{ priority_counts.low }})
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notices List -->
+  {% if notices %}
+    {% for notice in notices %}
+    <div class="card shadow-sm mb-3
+      {% if notice.priority == 'urgent' %}border-left-danger
+      {% elif notice.priority == 'high' %}border-left-warning
+      {% elif notice.priority == 'normal' %}border-left-primary
+      {% else %}border-left-success{% endif %}">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="flex-grow-1">
+
+            <!-- Title + Badges -->
+            <h5 class="card-title mb-1">
+              {{ notice.title }}
+              {% if notice.is_new %}
+                <span class="badge badge-soft-success ms-2">NEW</span>
+              {% endif %}
+              {% if notice.expiring_soon %}
+                <span class="badge badge-soft-warning ms-1">Expiring Soon</span>
+              {% endif %}
+            </h5>
+
+            <!-- Meta -->
+            <p class="text-muted small mb-2">
+              <i class="mdi mdi-account-circle me-1"></i>{{ notice.posted_by }}
+              &nbsp;·&nbsp;
+              <i class="mdi mdi-calendar me-1"></i>{{ notice.published_date }}
+              {% if notice.expiry_date %}
+                &nbsp;·&nbsp;
+                <i class="mdi mdi-calendar-remove me-1"></i>Expires: {{ notice.expiry_date }}
+              {% endif %}
+              &nbsp;·&nbsp;
+              {% if notice.target == 'class' %}
+                <span class="badge badge-soft-primary">Class {{ notice.target_class }} Only</span>
+              {% else %}
+                <span class="badge badge-soft-secondary">All Students</span>
+              {% endif %}
+            </p>
+
+            <!-- Content (collapsible for long notices) -->
+            <div class="notice-content">
+              {% if notice.content|length > 300 %}
+                <p class="mb-0" id="short-{{ notice.id }}">
+                  {{ notice.content|truncatechars:300 }}
+                  <a href="#" class="text-primary small" onclick="toggleNotice({{ notice.id }}); return false;">
+                    Read more
+                  </a>
+                </p>
+                <p class="mb-0 d-none" id="full-{{ notice.id }}">
+                  {{ notice.content }}
+                  <a href="#" class="text-primary small" onclick="toggleNotice({{ notice.id }}); return false;">
+                    Show less
+                  </a>
+                </p>
+              {% else %}
+                <p class="mb-0">{{ notice.content }}</p>
+              {% endif %}
+            </div>
+
+          </div>
+
+          <!-- Priority Badge (right side) -->
+          <div class="ms-3 text-end">
+            {% if notice.priority == 'urgent' %}
+              <span class="badge badge-soft-danger">Urgent</span>
+            {% elif notice.priority == 'high' %}
+              <span class="badge badge-soft-warning">High</span>
+            {% elif notice.priority == 'normal' %}
+              <span class="badge badge-soft-primary">Normal</span>
+            {% else %}
+              <span class="badge badge-soft-success">Low</span>
+            {% endif %}
+            <p class="text-muted small mt-1 mb-0">
+              {% if notice.days_ago == 0 %}Today
+              {% elif notice.days_ago == 1 %}Yesterday
+              {% else %}{{ notice.days_ago }}d ago{% endif %}
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+    <nav aria-label="Notices pagination">
+      <ul class="pagination justify-content-center">
+        {% if current_page > 1 %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ current_page|add:'-1' }}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}">
+            &laquo; Prev
+          </a>
+        </li>
+        {% endif %}
+
+        {% for p in page_range %}
+        <li class="page-item {% if p == current_page %}active{% endif %}">
+          <a class="page-link" href="?page={{ p }}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}">
+            {{ p }}
+          </a>
+        </li>
+        {% endfor %}
+
+        {% if current_page < total_pages %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ current_page|add:'1' }}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}">
+            Next &raquo;
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+
+  {% else %}
+    <div class="card shadow-sm">
+      <div class="card-body text-center py-5">
+        <i class="mdi mdi-bulletin-board mdi-48px text-muted mb-3 d-block"></i>
+        <h5 class="text-muted">No Notices Available</h5>
+        <p class="text-muted small">
+          {% if priority_filter %}
+            No {{ priority_filter }} priority notices right now.
+            <a href="{% url 'student_notices' %}">View all notices</a>
+          {% else %}
+            There are no active notices at the moment.
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function toggleNotice(id) {
+    document.getElementById('short-' + id).classList.toggle('d-none');
+    document.getElementById('full-' + id).classList.toggle('d-none');
+  }
+</script>
+
+<style>
+  .border-left-danger  { border-left: 4px solid #dc3545 !important; }
+  .border-left-warning { border-left: 4px solid #ffc107 !important; }
+  .border-left-primary { border-left: 4px solid #4e73df !important; }
+  .border-left-success { border-left: 4px solid #1cc88a !important; }
+</style>
+{% endblock %}

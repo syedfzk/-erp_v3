@@ -1,0 +1,192 @@
+{% extends 'student-base.html' %}
+{% block title %}My Homework{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between mb-3">
+    <div class="my-auto mb-2">
+        <h3 class="page-title mb-1">My Homework</h3>
+        <nav>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/student/dashboard/">Dashboard</a></li>
+                <li class="breadcrumb-item active">Homework</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 border-bottom border-warning border-2">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-md rounded bg-warning me-2">
+                        <i class="ti ti-clock fs-16"></i>
+                    </span>
+                    <div>
+                        <h6 class="mb-0">Pending</h6>
+                        <h4 class="mb-0">{{ pending|length }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 border-bottom border-success border-2">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-md rounded bg-success me-2">
+                        <i class="ti ti-check fs-16"></i>
+                    </span>
+                    <div>
+                        <h6 class="mb-0">Submitted</h6>
+                        <h4 class="mb-0">{{ submitted|length }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 border-bottom border-primary border-2">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-md rounded bg-primary me-2">
+                        <i class="ti ti-books fs-16"></i>
+                    </span>
+                    <div>
+                        <h6 class="mb-0">Total</h6>
+                        <h4 class="mb-0">{{ total }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Homework -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h4 class="card-title">Pending Homework</h4>
+    </div>
+    <div class="card-body">
+        {% if pending %}
+            {% for hw in pending %}
+            <div class="border rounded p-3 mb-3">
+                <div class="d-flex align-items-center justify-content-between flex-wrap mb-2">
+                    <div>
+                        <!-- Priority Badge -->
+                        {% if hw.priority == 'High' %}
+                        <span class="badge badge-soft-danger me-2">High Priority</span>
+                        {% elif hw.priority == 'Medium' %}
+                        <span class="badge badge-soft-warning me-2">Medium Priority</span>
+                        {% else %}
+                        <span class="badge badge-soft-info me-2">Low Priority</span>
+                        {% endif %}
+
+                        <!-- Due Status Badge -->
+                        {% if hw.due_status == 'Overdue' %}
+                        <span class="badge bg-danger">Overdue</span>
+                        {% elif hw.due_status == 'Due Today' %}
+                        <span class="badge bg-warning">Due Today</span>
+                        {% else %}
+                        <span class="badge bg-success">Upcoming</span>
+                        {% endif %}
+                    </div>
+                    <small class="text-muted">Due: {{ hw.due_date }}</small>
+                </div>
+
+                <h5 class="mb-1">{{ hw.title }}</h5>
+                <p class="text-muted mb-1">
+                    <i class="ti ti-book me-1"></i>{{ hw.subject_name }}
+                </p>
+                {% if hw.description %}
+                <p class="mb-2">{{ hw.description }}</p>
+                {% endif %}
+
+                {% if hw.attachment %}
+                <a class="btn btn-sm btn-outline-primary me-2" href="/media/{{ hw.attachment }}" target="_blank">
+                    <i class="ti ti-download me-1"></i>Download Attachment
+                </a>
+                {% endif %}
+
+                <!-- Submit Button -->
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#submitModal{{ hw.id }}">
+                    <i class="ti ti-upload me-1"></i>Submit
+                </button>
+            </div>
+
+            <!-- Submit Modal -->
+            <div class="modal fade" id="submitModal{{ hw.id }}">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Submit: {{ hw.title }}</h4>
+                            <button class="btn-close custom-btn-close" data-bs-dismiss="modal" type="button">
+                                <i class="ti ti-x"></i>
+                            </button>
+                        </div>
+                        <form action="/student/homework/submit/{{ hw.id }}/" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Upload File (PDF, Image)</label>
+                                    <input class="form-control" name="submission_file" type="file" accept=".pdf,.jpg,.jpeg,.png"/>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Comments (Optional)</label>
+                                    <textarea class="form-control" name="comments" rows="3" placeholder="Add any comments..."></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-light me-2" data-bs-dismiss="modal" type="button">Cancel</button>
+                                <button class="btn btn-primary" type="submit">Submit Homework</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-4">
+                <i class="ti ti-check fs-1 text-success"></i>
+                <p class="text-muted mt-2">No pending homework!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Submitted Homework -->
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title">Submitted Homework</h4>
+    </div>
+    <div class="card-body">
+        {% if submitted %}
+            {% for hw in submitted %}
+            <div class="border rounded p-3 mb-3">
+                <div class="d-flex align-items-center justify-content-between flex-wrap">
+                    <div>
+                        <h5 class="mb-1">{{ hw.title }}</h5>
+                        <p class="text-muted mb-0">
+                            <i class="ti ti-book me-1"></i>{{ hw.subject_name }}
+                        </p>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge badge-soft-success d-inline-flex align-items-center mb-1">
+                            <i class="ti ti-circle-filled fs-5 me-1"></i>{{ hw.submission_status }}
+                        </span>
+                        <p class="text-muted mb-0 fs-12">Due: {{ hw.due_date }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-4">
+                <i class="ti ti-file-off fs-1 text-muted"></i>
+                <p class="text-muted mt-2">No submitted homework yet</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

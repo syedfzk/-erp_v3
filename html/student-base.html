@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, user-scalable=0" name="viewport"/>
+<title>{% block title %}ERP System{% endblock %}</title>
+<link href="{% static 'assets/images/favicon_ed329702.png' %}" rel="shortcut icon" type="image/x-icon"/>
+<script src="{% static 'assets/js/theme-script_2f6b2452.js' %}"></script>
+<link href="{% static 'assets/css/bootstrap.min_91a1c12a.css' %}" rel="stylesheet"/>
+<link href="{% static 'assets/css/feather_b43af4d6.css' %}" rel="stylesheet"/>
+<link href="{% static 'assets/css/tabler-icons_a806d5f8.css' %}" rel="stylesheet"/>
+<link href="{% static 'assets/css/fontawesome.min_4fb33415.css' %}" rel="stylesheet"/>
+<link href="{% static 'assets/css/all.min_10215c55.css' %}" rel="stylesheet"/>
+<link href="{% static 'assets/css/style_0313db4e.css' %}" rel="stylesheet"/>
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+<div id="global-loader"><div class="page-loader"></div></div>
+<div class="main-wrapper">
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left active">
+            <a class="logo logo-normal" href="{% url 'student_dashboard' %}">
+                <img alt="Logo" src="{% static 'assets/images/logo_41518a32.svg' %}"/>
+            </a>
+            <a class="logo-small" href="{% url 'student_dashboard' %}">
+                <img alt="Logo" src="{% static 'assets/images/logo-small_87820645.svg' %}"/>
+            </a>
+            <a class="dark-logo" href="{% url 'student_dashboard' %}">
+                <img alt="Logo" src="{% static 'assets/images/logo-dark_b97b8454.svg' %}"/>
+            </a>
+            <a href="javascript:void(0);" id="toggle_btn">
+                <i class="ti ti-menu-deep"></i>
+            </a>
+        </div>
+        <a class="mobile_btn" href="{% url 'student_dashboard' %}" id="mobile_btn">
+            <span class="bar-icon"><span></span><span></span><span></span></span>
+        </a>
+        <div class="header-user">
+            <div class="nav user-menu">
+                <!-- Search -->
+                <div class="nav-item nav-search-inputs me-auto">
+                    <div class="top-nav-search">
+                        <a class="responsive-search" href="javascript:void(0);">
+                            <i class="fa fa-search"></i>
+                        </a>
+                        <form action="#" class="dropdown">
+                            <div class="searchinputs" id="dropdownMenuClickable">
+                                <input placeholder="Search" type="text"/>
+                                <div class="search-addon">
+                                    <button type="submit"><i class="ti ti-command"></i></button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center">
+                    <!-- Dark mode -->
+                    <div class="pe-1">
+                        <a class="dark-mode-toggle activate btn btn-outline-light bg-white btn-icon me-1"
+                            href="javascript:void(0);" id="dark-mode-toggle">
+                            <i class="ti ti-moon"></i>
+                        </a>
+                        <a class="dark-mode-toggle btn btn-outline-light bg-white btn-icon me-1"
+                            href="javascript:void(0);" id="light-mode-toggle">
+                            <i class="ti ti-brightness-up"></i>
+                        </a>
+                    </div>
+                    <!-- Profile dropdown -->
+                    <div class="dropdown ms-1">
+                        <a class="dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown"
+                            href="javascript:void(0);">
+                            <span class="avatar avatar-md rounded">
+                                {% if student.profile_image %}
+                                <img alt="Img" class="img-fluid" src="{{ student.profile_image.url }}"/>
+                                {% else %}
+                                <img alt="Img" class="img-fluid" src="{% static 'assets/images/avatar-27_5a0bbc41.jpg' %}"/>
+                                {% endif %}
+                            </span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <div class="d-block">
+                                <div class="d-flex align-items-center p-2">
+                                    <span class="avatar avatar-md me-2 online avatar-rounded">
+                                        {% if student.profile_image %}
+                                        <img alt="img" src="{{ student.profile_image.url }}"/>
+                                        {% else %}
+                                        <img alt="img" src="{% static 'assets/images/avatar-27_5a0bbc41.jpg' %}"/>
+                                        {% endif %}
+                                    </span>
+                                    <div>
+                                        <h6>{{ student.name }}</h6>
+                                        <p class="text-primary mb-0">Student | {{ student.class_name }}</p>
+                                    </div>
+                                </div>
+                                <hr class="m-0"/>
+                                <a class="dropdown-item d-inline-flex align-items-center p-2"
+                                    href="{% url 'student_profile' %}">
+                                    <i class="ti ti-user-circle me-2"></i>My Profile
+                                </a>
+                                <hr class="m-0"/>
+                                <a class="dropdown-item d-inline-flex align-items-center p-2"
+                                    href="{% url 'student_logout' %}">
+                                    <i class="ti ti-login me-2"></i>Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="dropdown mobile-user-menu">
+            <a aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"
+                href="javascript:void(0);"><i class="fa fa-ellipsis-v"></i></a>
+            <div class="dropdown-menu dropdown-menu-end">
+                <a class="dropdown-item" href="{% url 'student_profile' %}">My Profile</a>
+                <a class="dropdown-item" href="{% url 'student_logout' %}">Logout</a>
+            </div>
+        </div>
+    </div>
+    <!-- /Header -->
+
+    {% include 'partials/sidebar.html' %}
+
+    <div class="page-wrapper">
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+</div>
+
+<script src="{% static 'assets/js/jquery-3.7.1.min_773d5883.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap.bundle.min_1e76a792.js' %}"></script>
+<script src="{% static 'assets/js/feather.min_f08732de.js' %}"></script>
+<script src="{% static 'assets/js/jquery.slimscroll.min_56d615e4.js' %}"></script>
+<script src="{% static 'assets/js/select2.min_cf0fbca3.js' %}"></script>
+<script src="{% static 'assets/js/script_2e4942ff.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

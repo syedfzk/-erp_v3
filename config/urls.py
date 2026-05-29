@@ -17,9 +17,24 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from core import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-     path('', views.home, name='home'),
-     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
-]
+    path('', views.home, name='home'),
+    path('login/',             views.login_view,        name='login_view'),
+    path('logout/',            views.logout_view,        name='student_logout'),
+    path('student/dashboard/', views.student_dashboard,  name='student_dashboard'),
+    path('student/profile/', views.student_profile, name='student_profile'),
+    path('student/attendance/', views.student_attendance, name='student_attendance'),
+    path('student/timetable/', views.student_timetable, name='student_timetable'),
+    path('student/results/', views.student_results, name='student_results'),
+    path('student/homework/', views.student_homework, name='student_homework'),
+    path('student/homework/submit/<int:homework_id>/', views.submit_homework, name='submit_homework'),
+    path('student/fees/', views.student_fees, name='student_fees'),
+    path('student/notices/', views.student_notices, name='student_notices'),
+    path('student/events/', views.student_events, name='student_events'),
+
+
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

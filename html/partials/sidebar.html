@@ -34,10 +34,10 @@
                             </a>
                         </li>
                         <li>
-                            <a href="/student/timetable/">
-                                <i class="ti ti-table"></i>
-                                <span>Time Table</span>
-                            </a>
+                            <a href="{% url 'student_timetable' %}">
+    <i class="ti ti-table"></i>
+    <span>Time Table</span>
+</a>
                         </li>
                         <li>
                             <a href="/student/results/">
@@ -73,18 +73,18 @@
                 <li>
                     <h6 class="submenu-hdr"><span>Communication</span></h6>
                     <ul>
-                        <li>
-                            <a href="/student/notices/">
-                                <i class="ti ti-clipboard-data"></i>
-                                <span>Notice Board</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/student/events/">
-                                <i class="ti ti-calendar-question"></i>
-                                <span>Events</span>
-                            </a>
-                        </li>
+                       <li class="{% if request.resolver_match.url_name == 'student_notices' %}active{% endif %}">
+  <a href="{% url 'student_notices' %}">
+    <i class="mdi mdi-bulletin-board menu-icon"></i>
+    <span class="menu-title">Notice Board</span>
+  </a>
+</li>
+                        <li class="{% if request.resolver_match.url_name == 'student_events' %}active{% endif %}">
+  <a href="{% url 'student_events' %}">
+    <i class="mdi mdi-calendar-multiple menu-icon"></i>
+    <span class="menu-title">Events</span>
+  </a>
+</li>
                     </ul>
                 </li>
                 <li>
@@ -97,10 +97,10 @@
                             </a>
                         </li>
                         <li>
-                            <a href="/logout/">
-                                <i class="ti ti-login"></i>
-                                <span>Logout</span>
-                            </a>
+                            <a href="{% url 'student_logout' %}">
+    <i class="ti ti-login"></i>
+    <span>Logout</span>
+</a>
                         </li>
                     </ul>
                 </li>

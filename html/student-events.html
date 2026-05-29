@@ -1,0 +1,176 @@
+{% extends 'student-base.html' %}
+{% block title %}Events{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="page-header">
+    <h3 class="page-title">Events Calendar</h3>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Events</li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- Today / Tomorrow Highlight Strip -->
+  {% if today_events %}
+  <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
+    <i class="mdi mdi-calendar-today mdi-24px me-2"></i>
+    <div>
+      <strong>Today:</strong>
+      {% for e in today_events %}
+        {{ e.title }}{% if e.start_time %} at {{ e.start_time }}{% endif %}{% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if tomorrow_events %}
+  <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
+    <i class="mdi mdi-calendar-arrow-right mdi-24px me-2"></i>
+    <div>
+      <strong>Tomorrow:</strong>
+      {% for e in tomorrow_events %}
+        {{ e.title }}{% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Summary Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-center border-0 shadow-sm">
+        <div class="card-body">
+          <h4 class="text-primary fw-bold">{{ total_upcoming }}</h4>
+          <p class="mb-0 text-muted small">Upcoming Events</p>
+        </div>
+      </div>
+    </div>
+    {% for cat, cnt in category_counts.items %}
+    <div class="col-md-3 mb-2">
+      <div class="card text-center border-0 shadow-sm">
+        <div class="card-body py-2">
+          <h5 class="fw-bold mb-0
+            {% if cat == 'exam' %}text-danger
+            {% elif cat == 'sports' %}text-success
+            {% elif cat == 'cultural' %}text-warning
+            {% elif cat == 'academic' %}text-primary
+            {% else %}text-info{% endif %}">
+            {{ cnt }}
+          </h5>
+          <p class="mb-0 text-muted small text-capitalize">{{ cat }}</p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Category Filter -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body py-2">
+      <div class="d-flex flex-wrap gap-2 align-items-center">
+        <span class="text-muted small me-2">Filter:</span>
+        <a href="{% url 'student_events' %}"
+           class="btn btn-sm {% if not category_filter %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+          All
+        </a>
+        {% for cat, cnt in category_counts.items %}
+        <a href="?category={{ cat }}"
+           class="btn btn-sm {% if category_filter == cat %}btn-dark{% else %}btn-outline-secondary{% endif %}">
+          {% if cat == 'academic' %}📚
+          {% elif cat == 'sports' %}🏆
+          {% elif cat == 'cultural' %}🎨
+          {% elif cat == 'holiday' %}🏖️
+          {% elif cat == 'exam' %}📝
+          {% else %}📅{% endif %}
+          {{ cat|capfirst }} ({{ cnt }})
+        </a>
+        {% endfor %}
+        <a href="?past=1" class="btn btn-sm btn-outline-secondary ms-auto">
+          🕐 Past Events
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upcoming Events -->
+  {% if not show_past %}
+
+    {% if today_events or this_week %}
+    <h6 class="text-muted mb-3 text-uppercase fw-bold">This Week</h6>
+    {% for e in today_events %}{% include 'partials/event-card.html' with event=e highlight="danger" %}{% endfor %}
+    {% for e in tomorrow_events %}{% include 'partials/event-card.html' with event=e highlight="warning" %}{% endfor %}
+    {% for e in this_week %}{% include 'partials/event-card.html' with event=e highlight="info" %}{% endfor %}
+    {% endif %}
+
+    {% if later_events %}
+    <h6 class="text-muted mb-3 mt-4 text-uppercase fw-bold">Coming Up</h6>
+    {% for e in later_events %}{% include 'partials/event-card.html' with event=e highlight="secondary" %}{% endfor %}
+    {% endif %}
+
+    {% if not today_events and not this_week and not later_events and not tomorrow_events %}
+    <div class="card shadow-sm">
+      <div class="card-body text-center py-5">
+        <i class="mdi mdi-calendar-blank mdi-48px text-muted d-block mb-2"></i>
+        <h5 class="text-muted">No Upcoming Events</h5>
+        {% if category_filter %}
+          <p class="text-muted small">No {{ category_filter }} events scheduled.
+            <a href="{% url 'student_events' %}">View all</a></p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+  <!-- Past Events -->
+  {% else %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="text-muted text-uppercase fw-bold mb-0">Past Events (Last 30 Days)</h6>
+    <a href="{% url 'student_events' %}" class="btn btn-sm btn-outline-primary">
+      ← Back to Upcoming
+    </a>
+  </div>
+
+  {% if past_events %}
+    {% for e in past_events %}
+    <div class="card shadow-sm mb-3 opacity-75">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="mb-1">{{ e.title }}</h6>
+            <p class="text-muted small mb-0">
+              <i class="mdi mdi-calendar me-1"></i>{{ e.event_date }}
+              {% if e.venue %}&nbsp;·&nbsp;<i class="mdi mdi-map-marker me-1"></i>{{ e.venue }}{% endif %}
+            </p>
+          </div>
+          <span class="badge badge-soft-secondary">
+            {{ e.days_ago }}d ago
+          </span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="card shadow-sm">
+      <div class="card-body text-center py-4">
+        <p class="text-muted mb-0">No past events in the last 30 days.</p>
+      </div>
+    </div>
+  {% endif %}
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+  .border-left-danger   { border-left: 4px solid #dc3545 !important; }
+  .border-left-warning  { border-left: 4px solid #ffc107 !important; }
+  .border-left-info     { border-left: 4px solid #17a2b8 !important; }
+  .border-left-primary  { border-left: 4px solid #4e73df !important; }
+  .border-left-success  { border-left: 4px solid #1cc88a !important; }
+  .border-left-secondary{ border-left: 4px solid #858796 !important; }
+  .opacity-75 { opacity: 0.75; }
+</style>
+{% endblock %}
