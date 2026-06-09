@@ -35,6 +35,15 @@ urlpatterns = [
     path('student/fees/', views.student_fees, name='student_fees'),
     path('student/notices/', views.student_notices, name='student_notices'),
     path('student/events/', views.student_events, name='student_events'),
-
+    path('teacher/dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
+    path('teacher/timetable/', views.teacher_timetable, name='teacher_timetable'),
+    path('teacher/attendance/mark/',    views.teacher_mark_attendance,     name='teacher_mark_attendance'),
+    path('teacher/attendance/mine/',    views.teacher_my_attendance,       name='teacher_my_attendance'),
+    path('teacher/myclass/', views.teacher_my_class, name='teacher_my_class'),
+    path('teacher/myclass/', views.teacher_my_class, name='teacher_my_class'),
+    path('teacher/myclass/results/pdf/', views.class_results_pdf, name='class_results_pdf'),
+    path('teacher/student/<int:student_id>/result/pdf/', views.student_result_pdf, name='student_result_pdf'),
+    path('teacher/profile/', views.teacher_profile, name='teacher_profile'),
+    
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,284 @@
+{% extends 'teacher-base.html' %}
+{% load static %}
+{% block title %}Mark Student Attendance{% endblock %}
+
+{% block content %}
+{% if not_class_teacher %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="ti ti-alert-circle fs-1 text-warning d-block mb-2"></i>
+        <h5 class="text-muted">You are not assigned as a Class Teacher</h5>
+        <p class="text-muted small">
+            Please contact admin to get assigned as a class teacher.
+        </p>
+    </div>
+</div>
+{% else %}
+    <!-- rest of the page -->
+{% endif %}
+
+<!-- Page Header -->
+<div class="d-md-flex d-block align-items-center justify-content-between mb-3">
+    <div class="my-auto mb-2">
+        <h3 class="page-title mb-1">Mark Student Attendance</h3>
+        <nav>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/teacher/dashboard/">Dashboard</a></li>
+                <li class="breadcrumb-item active">Mark Attendance</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap gap-2">
+    <span class="badge bg-primary fs-6 px-3 py-2 me-2">
+        <i class="ti ti-calendar me-1"></i>{{ today }}
+    </span>
+        <a href="{% url 'teacher_my_attendance' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="ti ti-user-check me-1"></i>My Attendance
+        </a>
+    </div>
+</div>
+
+<!-- Alerts -->
+{% if save_success %}
+<div class="alert alert-success alert-dismissible fade show">
+    <i class="ti ti-circle-check me-2"></i>Attendance saved successfully!
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+{% if save_error %}
+<div class="alert alert-danger alert-dismissible fade show">
+    <i class="ti ti-alert-circle me-2"></i>Error: {{ save_error }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+<!-- Filter Card -->
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between flex-wrap">
+            <div>
+                <h5 class="mb-1">
+                    <i class="ti ti-school me-2 text-primary"></i>
+                    Class Teacher of:
+                    <span class="text-primary fw-bold">Class {{ assigned_class }}</span>
+                </h5>
+                <p class="text-muted small mb-0">
+                    <i class="ti ti-calendar me-1"></i>
+                    Marking attendance for <strong>{{ today }}</strong>
+                </p>
+            </div>
+            {% if summary %}
+            <div class="d-flex gap-3 flex-wrap mt-2 mt-md-0">
+                <span class="badge bg-primary px-3 py-2">
+                    Total: {{ summary.total_students }}
+                </span>
+                <span class="badge bg-success px-3 py-2">
+                    Present: {{ summary.present_count }}
+                </span>
+                <span class="badge bg-danger px-3 py-2">
+                    Absent: {{ summary.absent_count }}
+                </span>
+                <span class="badge bg-warning px-3 py-2">
+                    Half Day: {{ summary.halfday_count }}
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<!-- Summary Strip -->
+{% if summary %}
+<div class="row mb-3">
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-2">
+                <h5 class="text-primary fw-bold mb-0">{{ summary.total_students }}</h5>
+                <p class="text-muted small mb-0">Total</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-2">
+                <h5 class="text-success fw-bold mb-0">{{ summary.present_count }}</h5>
+                <p class="text-muted small mb-0">Present</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-2">
+                <h5 class="text-danger fw-bold mb-0">{{ summary.absent_count }}</h5>
+                <p class="text-muted small mb-0">Absent</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-2">
+                <h5 class="text-warning fw-bold mb-0">{{ summary.halfday_count }}</h5>
+                <p class="text-muted small mb-0">Half Day</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Students Table -->
+{% if students %}
+<div class="card">
+    <div class="card-header d-flex align-items-center justify-content-between flex-wrap pb-0">
+        <div class="mb-3">
+            <h4 class="mb-1">
+                Class {{ selected_class }}
+                {% if summary.is_marked %}
+                <span class="badge badge-soft-success ms-2">Already Marked</span>
+                {% else %}
+                <span class="badge badge-soft-warning ms-2">Not Marked Yet</span>
+                {% endif %}
+            </h4>
+            <p class="text-muted small mb-0">
+    <i class="ti ti-calendar me-1"></i>{{ today }} 
+    &nbsp;·&nbsp; 
+    <i class="ti ti-users me-1"></i>{{ summary.total_students }} students
+</p>
+        </div>
+        <!-- Mark All -->
+        <div class="mb-3 d-flex gap-2 flex-wrap">
+            <button type="button" class="btn btn-sm btn-soft-success" onclick="markAll('Present')">
+                <i class="ti ti-check me-1"></i>All Present
+            </button>
+            <button type="button" class="btn btn-sm btn-soft-danger" onclick="markAll('Absent')">
+                <i class="ti ti-x me-1"></i>All Absent
+            </button>
+        </div>
+    </div>
+
+    <div class="card-body p-0 py-3">
+        <form method="POST" action="{% url 'teacher_mark_attendance' %}">
+            {% csrf_token %}
+            <input type="hidden" name="class_name"  value="{{ selected_class }}">
+            <input type="hidden" name="subject_id"  value="{{ selected_subject }}">
+            <input type="hidden" name="date"         value="{{ selected_date }}">
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Roll No</th>
+                            <th>Student Name</th>
+                            <th>
+                                Status
+                                <span class="text-muted fw-normal small ms-1">
+                                    (Present / Absent / Half-Day)
+                                </span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <input type="hidden" name="student_id" value="{{ student.id }}">
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <span class="badge badge-soft-primary">
+                                    {{ student.roll_number }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if student.profile_image %}
+                                    <a class="avatar avatar-md me-2" href="javascript:void(0);">
+                                        <img alt="img" class="img-fluid rounded-circle"
+                                             src="/media/{{ student.profile_image }}"/>
+                                    </a>
+                                    {% else %}
+                                    <span class="avatar avatar-md me-2 bg-primary-transparent
+                                                 rounded-circle d-flex align-items-center
+                                                 justify-content-center">
+                                        <i class="ti ti-user fs-16 text-primary"></i>
+                                    </span>
+                                    {% endif %}
+                                    <p class="text-dark mb-0 fw-medium">{{ student.name }}</p>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center check-radio-group flex-nowrap">
+                                    <label class="custom-radio me-3">
+                                        <input type="radio"
+                                               name="status_{{ student.id }}"
+                                               value="Present"
+                                               {% if student.attendance_status == 'Present' %}checked{% endif %}/>
+                                        <span class="checkmark"></span>
+                                        Present
+                                    </label>
+                                    <label class="custom-radio me-3">
+                                        <input type="radio"
+                                               name="status_{{ student.id }}"
+                                               value="Absent"
+                                               {% if student.attendance_status == 'Absent' %}checked{% endif %}/>
+                                        <span class="checkmark"></span>
+                                        Absent
+                                    </label>
+                                    <label class="custom-radio">
+                                        <input type="radio"
+                                               name="status_{{ student.id }}"
+                                               value="Half-Day"
+                                               {% if student.attendance_status == 'Half-Day' %}checked{% endif %}/>
+                                        <span class="checkmark"></span>
+                                        Half Day
+                                    </label>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Save -->
+            <div class="p-3 border-top d-flex justify-content-between align-items-center">
+                <p class="text-muted small mb-0">
+                    <i class="ti ti-info-circle me-1"></i>
+                    Saving will update any previously marked attendance for this date.
+                </p>
+                <button type="submit" class="btn btn-primary px-5">
+                    <i class="ti ti-device-floppy me-1"></i>Save Attendance
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% elif selected_class and selected_subject %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="ti ti-users-minus fs-1 text-muted d-block mb-2"></i>
+        <h5 class="text-muted">No students found in Class {{ selected_class }}</h5>
+    </div>
+</div>
+
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="ti ti-calendar-plus fs-1 text-muted d-block mb-2"></i>
+        <h5 class="text-muted">Select a class, subject and date to begin</h5>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function markAll(status) {
+    {% for student in students %}
+    var radios = document.querySelectorAll('input[name="status_{{ student.id }}"]');
+    radios.forEach(function(r) {
+        r.checked = (r.value === status);
+    });
+    {% endfor %}
+}
+</script>
+{% endblock %}

@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     Student, Subject, ClassSchedule, Attendance, Exam, ExamSchedule,
     ExamResult, Homework, HomeworkSubmission, FeeType, FeeAssignment,
-    FeePayment, Notice, Event
+    FeePayment, Notice, Event, Teacher,TeacherAttendance,ClassTeacher,TeacherSchedule
 )
 
 admin.site.register(Student)
@@ -42,3 +42,24 @@ class EventAdmin(admin.ModelAdmin):
         if not obj.pk:
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
+
+@admin.register(Teacher)
+class TeacherAdmin(admin.ModelAdmin):
+    list_display = ['name', 'employee_id', 'subject', 'phone']
+    search_fields = ['name', 'employee_id']
+
+@admin.register(TeacherAttendance)
+class TeacherAttendanceAdmin(admin.ModelAdmin):
+    list_display  = ['teacher', 'date', 'status', 'remarks']
+    list_filter   = ['status', 'date', 'teacher']
+    search_fields = ['teacher__name']
+    list_editable = ['status']
+    ordering      = ['-date']
+    date_hierarchy = 'date'
+
+@admin.register(ClassTeacher)
+class ClassTeacherAdmin(admin.ModelAdmin):
+    list_display  = ['teacher', 'class_name', 'assigned_by', 'assigned_at']
+    search_fields = ['teacher__name', 'class_name']
+
+admin.site.register(TeacherSchedule)

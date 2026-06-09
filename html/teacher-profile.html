@@ -1,0 +1,193 @@
+{% extends 'teacher-base.html' %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between mb-3">
+    <div class="my-auto mb-2">
+        <h3 class="page-title mb-1">My Profile</h3>
+        <nav>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active">My Profile</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+
+    <!-- Left Column — Photo + Quick Info -->
+    <div class="col-xxl-3 col-xl-4">
+
+        <!-- Profile Card -->
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="mb-3">
+                    {% if profile.profile_image %}
+                    <img alt="Profile" class="rounded-circle" height="100" src="/media/{{ profile.profile_image }}" width="100"/>
+                    {% else %}
+                    <img alt="Profile" class="rounded-circle" height="100" src="/static/assets/images/avatar-27_5a0bbc41.jpg" width="100"/>
+                    {% endif %}
+                </div>
+                <h5 class="mb-1">{{ profile.name }}</h5>
+                <p class="text-primary mb-1">{{ profile.designation|default:"Teacher" }}</p>
+                <p class="text-muted mb-3">{{ profile.department|default:"-" }}</p>
+                {% if profile.class_teacher_of %}
+                <span class="badge badge-soft-success">Class Teacher: {{ profile.class_teacher_of }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Personal Info -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-6 fw-medium text-dark mb-3">Employee ID</dt>
+                    <dd class="col-6 mb-3">{{ profile.employee_id }}</dd>
+
+                    <dt class="col-6 fw-medium text-dark mb-3">Gender</dt>
+                    <dd class="col-6 mb-3">{{ profile.gender|default:"-" }}</dd>
+
+                    <dt class="col-6 fw-medium text-dark mb-3">Date of Birth</dt>
+                    <dd class="col-6 mb-3">{{ profile.date_of_birth|default:"-" }}</dd>
+
+                    <dt class="col-6 fw-medium text-dark mb-3">Joining Date</dt>
+                    <dd class="col-6 mb-3">{{ profile.joining_date|default:"-" }}</dd>
+
+                    <dt class="col-6 fw-medium text-dark mb-3">Email</dt>
+                    <dd class="col-6 mb-3">{{ profile.email }}</dd>
+
+                    <dt class="col-6 fw-medium text-dark mb-3">Phone</dt>
+                    <dd class="col-6 mb-3">{{ profile.phone|default:"-" }}</dd>
+
+                    <dt class="col-6 fw-medium text-dark mb-3">Alt Phone</dt>
+                    <dd class="col-6 mb-3">{{ profile.alternate_phone|default:"-" }}</dd>
+                </dl>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Right Column — Tabs -->
+    <div class="col-xxl-9 col-xl-8">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-tabs-bottom">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#assignments">
+                            <i class="ti ti-book me-2"></i>Teaching Assignments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#edit_profile">
+                            <i class="ti ti-edit me-2"></i>Edit Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#change_password">
+                            <i class="ti ti-lock me-2"></i>Change Password
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-body">
+                <div class="tab-content">
+
+                    <!-- Teaching Assignments Tab -->
+                    <div class="tab-pane fade show active" id="assignments">
+                        <h5 class="mb-3">My Teaching Assignments</h5>
+                        {% if assignments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Class</th>
+                                        <th>Day</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for a in assignments %}
+                                    <tr>
+                                        <td>{{ a.subject_name }}</td>
+                                        <td>{{ a.class_name }}</td>
+                                        <td>{{ a.day_of_week }}</td>
+                                        <td>{{ a.start_time }} - {{ a.end_time }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="ti ti-book-off fs-1 text-muted"></i>
+                            <p class="text-muted mt-2">No teaching assignments found</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Edit Profile Tab -->
+                    <div class="tab-pane fade" id="edit_profile">
+                        <h5 class="mb-3">Edit Profile</h5>
+                        <form action="{% url 'teacher_profile' %}" enctype="multipart/form-data" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="update_profile"/>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">Profile Photo</label>
+                                    <input class="form-control" name="profile_image" type="file" accept="image/*"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Phone Number</label>
+                                    <input class="form-control" name="phone" type="text" value="{{ profile.phone|default:'' }}"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Alternate Phone</label>
+                                    <input class="form-control" name="alternate_phone" type="text" value="{{ profile.alternate_phone|default:'' }}"/>
+                                </div>
+                                <div class="col-md-12">
+                                    <button class="btn btn-primary" type="submit">Save Changes</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Change Password Tab -->
+                    <div class="tab-pane fade" id="change_password">
+                        <h5 class="mb-3">Change Password</h5>
+                        <form action="{% url 'teacher_profile' %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="change_password"/>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">Current Password</label>
+                                    <input class="form-control" name="old_password" type="password"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">New Password</label>
+                                    <input class="form-control" name="new_password1" type="password"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Confirm New Password</label>
+                                    <input class="form-control" name="new_password2" type="password"/>
+                                </div>
+                                <div class="col-md-12">
+                                    <button class="btn btn-primary" type="submit">Change Password</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -46,19 +46,18 @@ class ClassSchedule(models.Model):
 
 class Attendance(models.Model):
     STATUS_CHOICES = [
-        ('Present', 'Present'),
-        ('Absent', 'Absent'),
+        ('Present',  'Present'),
+        ('Absent',   'Absent'),
         ('Half-Day', 'Half-Day'),
     ]
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, null=True, blank=True)
-    date = models.DateField()
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Present')
-    marked_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    student    = models.ForeignKey(Student, on_delete=models.CASCADE)
+    date       = models.DateField()
+    status     = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Present')
+    marked_by  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('student', 'date', 'subject')
+        unique_together = ('student', 'date')
 
     def __str__(self):
         return f"{self.student.name} - {self.date} - {self.status}"
@@ -295,3 +294,97 @@ class Event(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.event_date})"
+    
+class Teacher(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    employee_id = models.CharField(max_length=20, unique=True)
+    subject = models.ForeignKey(Subject, on_delete=models.SET_NULL, null=True, blank=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    alternate_phone = models.CharField(max_length=20, blank=True, null=True)  # NEW
+    gender = models.CharField(max_length=10, choices=[                         # NEW
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+        ('Other', 'Other'),
+    ], blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)                   # NEW
+    department = models.CharField(max_length=100, blank=True, null=True)      # NEW
+    designation = models.CharField(max_length=100, blank=True, null=True)     # NEW
+    profile_image = models.ImageField(upload_to='teacher_images/', blank=True, null=True)
+    joining_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+    
+class TeacherAttendance(models.Model):
+    STATUS_CHOICES = [
+        ('Present',  'Present'),
+        ('Absent',   'Absent'),
+        ('Late',     'Late'),
+        ('Half Day', 'Half Day'),
+        ('Holiday',  'Holiday'),
+    ]
+    teacher    = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    date       = models.DateField()
+    status     = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Present')
+    remarks    = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('teacher', 'date')
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"{self.teacher.name} - {self.date} - {self.status}"
+    
+class ClassTeacher(models.Model):
+    teacher    = models.OneToOneField(Teacher, on_delete=models.CASCADE)
+    class_name = models.CharField(max_length=50)
+    assigned_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True
+    )
+    assigned_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.teacher.name} → Class {self.class_name}"
+    
+class Parent(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='parents')
+    name = models.CharField(max_length=100)
+    relation = models.CharField(max_length=20, choices=[
+        ('Father', 'Father'),
+        ('Mother', 'Mother'),
+        ('Guardian', 'Guardian'),
+    ])
+    phone = models.CharField(max_length=20)
+    email = models.EmailField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.relation}) - {self.student.name}"
+    
+class TeacherSchedule(models.Model):
+    DAY_CHOICES = [
+        ('Monday', 'Monday'),
+        ('Tuesday', 'Tuesday'),
+        ('Wednesday', 'Wednesday'),
+        ('Thursday', 'Thursday'),
+        ('Friday', 'Friday'),
+        ('Saturday', 'Saturday'),
+    ]
+    STATUS_CHOICES = [
+        ('Completed', 'Completed'),
+        ('In Progress', 'In Progress'),
+        ('Upcoming', 'Upcoming'),
+    ]
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    class_name = models.CharField(max_length=50)
+    day_of_week = models.CharField(max_length=20, choices=DAY_CHOICES)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    room_number = models.CharField(max_length=20, blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Upcoming')
+
+    def __str__(self):
+        return f"{self.teacher.name} - {self.subject.name} - {self.class_name} - {self.day_of_week}"

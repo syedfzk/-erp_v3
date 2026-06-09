@@ -1,0 +1,239 @@
+{% extends 'teacher-base.html' %}
+{% block title %}My Class{% endblock %}
+{% block content %}
+
+<!-- Page Header -->
+<div class="d-md-flex d-block align-items-center justify-content-between mb-3">
+    <div class="my-auto mb-2">
+        <h3 class="page-title mb-1">My Class</h3>
+        <nav>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/teacher/dashboard/">Dashboard</a></li>
+                <li class="breadcrumb-item active">My Class</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Class Info Card -->
+{% if class_info %}
+<div class="card mb-4 bg-dark">
+    <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between flex-wrap">
+            <div>
+                <h2 class="text-white mb-1">Class {{ class_info.class_name }}</h2>
+                <p class="text-gray-2 mb-0">Class Teacher: {{ class_info.teacher_name }}</p>
+            </div>
+            <div class="text-end">
+                <h3 class="text-white mb-1">{{ class_info.total_students }}</h3>
+                <p class="text-gray-2 mb-0">Total Students</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Tabs -->
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs nav-tabs-bottom">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#students">
+                    <i class="ti ti-school me-2"></i>Students
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#parents">
+                    <i class="ti ti-user-bolt me-2"></i>Parent Contacts
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#attendance">
+                    <i class="ti ti-calendar-share me-2"></i>Attendance
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#results">
+                    <i class="ti ti-bookmark-edit me-2"></i>Results
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card-body">
+        <div class="tab-content">
+
+            <!-- Students Tab -->
+            <div class="tab-pane fade show active" id="students">
+                <div class="d-flex justify-content-between mb-3">
+                    <h5>Student List</h5>
+                </div>
+                {% if students %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Roll No</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in students %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="avatar avatar-md me-2">
+                                            {% if s.profile_image %}
+                                            <img alt="img" class="img-fluid rounded-circle" src="/media/{{ s.profile_image }}"/>
+                                            {% else %}
+                                            <img alt="img" class="img-fluid rounded-circle" src="/static/assets/images/student-01_0efbba5c.jpg"/>
+                                            {% endif %}
+                                        </span>
+                                        <p class="mb-0">{{ s.name }}</p>
+                                    </div>
+                                </td>
+                                <td>{{ s.roll_number }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="ti ti-users-off fs-1 text-muted"></i>
+                    <p class="text-muted mt-2">No students found</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Parents Tab -->
+            <div class="tab-pane fade" id="parents">
+                <h5 class="mb-3">Parent Contacts</h5>
+                {% if parents %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Roll No</th>
+                                <th>Parent Name</th>
+                                <th>Relation</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in parents %}
+                            <tr>
+                                <td>{{ p.student_name }}</td>
+                                <td>{{ p.roll_number }}</td>
+                                <td>{{ p.parent_name }}</td>
+                                <td>{{ p.relation }}</td>
+                                <td>{{ p.phone }}</td>
+                                <td>{{ p.email|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="ti ti-users-off fs-1 text-muted"></i>
+                    <p class="text-muted mt-2">No parent contacts found</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Attendance Tab -->
+            <div class="tab-pane fade" id="attendance">
+                <h5 class="mb-3">Attendance Overview</h5>
+                {% if attendance %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Roll No</th>
+                                <th>Total Days</th>
+                                <th>Present</th>
+                                <th>Absent</th>
+                                <th>Half Day</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in attendance %}
+                            <tr>
+                                <td>{{ a.name }}</td>
+                                <td>{{ a.roll_number }}</td>
+                                <td>{{ a.total_days }}</td>
+                                <td><span class="text-success">{{ a.present }}</span></td>
+                                <td><span class="text-danger">{{ a.absent }}</span></td>
+                                <td><span class="text-warning">{{ a.half_day }}</span></td>
+                                <td>
+                                    {% if a.attendance_percentage >= 75 %}
+                                    <span class="badge badge-soft-success">{{ a.attendance_percentage }}%</span>
+                                    {% else %}
+                                    <span class="badge badge-soft-danger">{{ a.attendance_percentage }}%</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="ti ti-calendar-off fs-1 text-muted"></i>
+                    <p class="text-muted mt-2">No attendance data found</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Results Tab -->
+<div class="tab-pane fade" id="results">
+    <h5 class="mb-3">Results Overview</h5>
+    {% if results_by_student %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>Student</th>
+                    <th>Roll No</th>
+                    <th>Result Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student_id, s in results_by_student.items %}
+                <tr>
+                    <td>{{ s.name }}</td>
+                    <td>{{ s.roll_number }}</td>
+                    <td>
+                        {% if s.result_status == 'Pass' %}
+                        <span class="badge badge-soft-success">Pass</span>
+                        {% elif s.result_status == 'Fail' %}
+                        <span class="badge badge-soft-danger">Fail</span>
+                        {% else %}
+                        <span class="badge badge-soft-warning">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a class="btn btn-sm btn-primary" href="{% url 'student_result_pdf' s.id %}">
+                            <i class="ti ti-file-type-pdf me-1"></i>PDF
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-4">
+        <i class="ti ti-file-off fs-1 text-muted"></i>
+        <p class="text-muted mt-2">No results found</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

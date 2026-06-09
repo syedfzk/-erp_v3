@@ -73,17 +73,17 @@
                 <li>
                     <h6 class="submenu-hdr"><span>Communication</span></h6>
                     <ul>
-                       <li class="{% if request.resolver_match.url_name == 'student_notices' %}active{% endif %}">
-  <a href="{% url 'student_notices' %}">
-    <i class="mdi mdi-bulletin-board menu-icon"></i>
-    <span class="menu-title">Notice Board</span>
-  </a>
+       <li>
+    <a href="{% url 'student_notices' %}">
+        <i class="ti ti-clipboard-data"></i>
+        <span>Notice Board</span>
+    </a>
 </li>
-                        <li class="{% if request.resolver_match.url_name == 'student_events' %}active{% endif %}">
-  <a href="{% url 'student_events' %}">
-    <i class="mdi mdi-calendar-multiple menu-icon"></i>
-    <span class="menu-title">Events</span>
-  </a>
+                        <li>
+    <a href="{% url 'student_events' %}">
+        <i class="ti ti-calendar-question"></i>
+        <span>Events</span>
+    </a>
 </li>
                     </ul>
                 </li>

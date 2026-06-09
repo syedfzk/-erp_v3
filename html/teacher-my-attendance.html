@@ -1,0 +1,188 @@
+{% extends 'teacher-base.html' %}
+{% load static %}
+{% block title %}My Attendance{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="alert alert-danger">
+    <i class="ti ti-alert-circle me-2"></i>{{ error }}
+</div>
+{% endif %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between mb-3">
+    <div class="my-auto mb-2">
+        <h3 class="page-title mb-1">My Attendance</h3>
+        <nav>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/teacher/dashboard/">Dashboard</a></li>
+                <li class="breadcrumb-item active">My Attendance</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="GET">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Month</label>
+                    <select name="month" class="form-control">
+                        {% for m_num, m_name in months %}
+                        <option value="{{ m_num }}"
+                            {% if m_num == month %}selected{% endif %}>
+                            {{ m_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Year</label>
+                    <select name="year" class="form-control">
+                        {% for y in years %}
+                        <option value="{{ y }}"
+                            {% if y == year %}selected{% endif %}>{{ y }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">
+                        Specific Date
+                        <span class="text-muted fw-normal small">(optional)</span>
+                    </label>
+                    <input type="date" name="date" class="form-control"
+                           value="{{ selected_date }}">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="ti ti-search me-1"></i>View
+                    </button>
+                </div>
+                
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Summary Cards -->
+{% if summary %}
+<div class="row mb-3">
+    <div class="col-6 col-md-2 mb-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-2">
+                <h5 class="text-primary fw-bold mb-0">{{ summary.total_days }}</h5>
+                <p class="text-muted small mb-0">Total</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2 mb-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-2">
+                <h5 class="text-success fw-bold mb-0">{{ summary.present_count }}</h5>
+                <p class="text-muted small mb-0">Present</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2 mb-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-2">
+                <h5 class="text-danger fw-bold mb-0">{{ summary.absent_count }}</h5>
+                <p class="text-muted small mb-0">Absent</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2 mb-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-2">
+                <h5 class="text-warning fw-bold mb-0">{{ summary.late_count }}</h5>
+                <p class="text-muted small mb-0">Late</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2 mb-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-2">
+                <h5 class="text-info fw-bold mb-0">{{ summary.halfday_count }}</h5>
+                <p class="text-muted small mb-0">Half Day</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2 mb-2">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-2">
+                <h5 class="text-secondary fw-bold mb-0">{{ summary.holiday_count }}</h5>
+                <p class="text-muted small mb-0">Holiday</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Records -->
+<div class="card">
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <h4 class="mb-0">
+            {% if selected_date %}
+                {{ selected_date }}
+            {% else %}
+                {{ month_name }} {{ year }}
+            {% endif %}
+        </h4>
+        {% if selected_date %}
+        <a href="?month={{ month }}&year={{ year }}" class="btn btn-sm btn-outline-secondary">
+            <i class="ti ti-x me-1"></i>Clear Date Filter
+        </a>
+        {% endif %}
+    </div>
+    <div class="card-body p-0 py-3">
+        {% if records %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Day</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rec in records %}
+                    <tr>
+                        <td>{{ rec.date }}</td>
+                        <td>{{ rec.day_name }}</td>
+                        <td>
+                            {% if rec.status == 'Present' %}
+                            <span class="badge badge-soft-success">Present</span>
+                            {% elif rec.status == 'Absent' %}
+                            <span class="badge badge-soft-danger">Absent</span>
+                            {% elif rec.status == 'Late' %}
+                            <span class="badge badge-soft-warning">Late</span>
+                            {% elif rec.status == 'Half Day' %}
+                            <span class="badge badge-soft-info">Half Day</span>
+                            {% else %}
+                            <span class="badge badge-soft-secondary">{{ rec.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ rec.remarks|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="ti ti-calendar-off fs-1 text-muted d-block mb-2"></i>
+            <h5 class="text-muted">
+                {% if selected_date %}
+                    No record found for {{ selected_date }}
+                {% else %}
+                    No records for {{ month_name }} {{ year }}
+                {% endif %}
+            </h5>
+            <p class="text-muted small">Your attendance is marked by admin or HR.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
